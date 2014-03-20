@@ -47,14 +47,18 @@ function wmsRsync() {
       send \"${PASSWORD}\n\"
     } \"${HOST}'s password:\" {
       send \"${PASSWORD}\n\"
+    } \"Enter passphrase for key\" {
+      send \"${PASSWORD}\n\"
+      expect \"Last login\"
+      send \"ls -l\n\"
     }
     interact
   "
 }
 
-echo `date "+%Y/%m/%d %H:%M:%S"`
+echo -e "\n########## START Rsync [`date "+%Y/%m/%d %H:%M:%S"`] ##########\n"
 wmsRsync "css"
 wmsRsync "img"
-echo `date "+%Y/%m/%d %H:%M:%S"`
+echo -e "\n########## END Rsync [`date "+%Y/%m/%d %H:%M:%S"`] ##########\n"
 
 exit 0

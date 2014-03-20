@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),  
+    pkg: grunt.file.readJSON('package.json'),
     wms_config: grunt.file.readJSON('wms_conf.json'),
     wms_pw: grunt.file.readJSON('pw.json'),
     os: require('os').platform(),
@@ -32,14 +32,9 @@ module.exports = function(grunt) {
           var g_cnf = grunt.config();
           var wms_data = getAssetsData(g_cnf, param1, param2, param3);
 
-          switch(g_cnf.os) {
-            case 'xxx':
-              var cmd = './wms_rsync.sh';
-              break;
-            default:
-              var cmd = './wms_rsync.sh';
-              break;
-          }
+          var cmd = './wms_rsync.sh';
+          cmd = (g_cnf.os === 'win32') ? 'bash ' + cmd : cmd;
+
           if(wms_data.bless) {
             cmd = 'blessc ' + wms_data.target_assets.css + ' --force && ' + cmd;
           }
@@ -51,6 +46,7 @@ module.exports = function(grunt) {
           opt += ' ' + wms_data.target_assets.img;
           opt += ' ' + wms_data.target_assets.remote_path;
           opt += ' ' + wms_data.env.private_key;
+          // console.log(cmd);
           return cmd + opt;
         }
       }
@@ -84,8 +80,8 @@ module.exports = function(grunt) {
     }
 
     var g_cnf = grunt.config();
-    var wms_data = getAssetsData(g_cnf, param1, param2, param3);
     var args = param1 + ':' + param2 + ':' + param3;
+    var wms_data = getAssetsData(g_cnf, param1, param2, param3);
     g_cnf.watch.files = wms_data.target_assets.css;
     g_cnf.watch.tasks = ['autoprefixer', 'exec:wms_rsync:' + args ];
     grunt.initConfig(g_cnf);
@@ -98,7 +94,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-csso');
+  // grunt.loadNpmTasks('grunt-csso');
   grunt.loadNpmTasks('grunt-autoprefixer');
   grunt.loadNpmTasks('grunt-exec');
 };
