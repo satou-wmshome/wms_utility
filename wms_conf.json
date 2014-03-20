@@ -1,0 +1,42 @@
+{
+  "dev": {
+    "host": "0.0.0.0",
+    "username": "username",
+    "private_key": ""
+  },
+  "pre_stg": {
+    "host": "0.0.0.0",
+    "username": "username",
+    "private_key": "/path/to/private_key.pem"
+  },
+  "theme": {
+    "A1_1": {
+      "pc": {
+        "css": "/path/to/theme_A1-1/pc/mod.css",
+        "img": "/path/to/theme_A1-1/pc/img_dir/",
+        "dev_path": "/path/to/theme_A1-1/upload_dir/pc/",
+        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/pc/"
+      },
+      "sp": {
+        "css": "/path/to/theme_A1-1/sp/mod.css",
+        "img": "/path/to/theme_A1-1/sp/img_dir/",
+        "dev_path": "/path/to/theme_A1-1/upload_dir/sp/",
+        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/sp/"
+      }
+    },
+    "A1_3": {
+      "pc": {
+        "css": "/path/to/theme_A1-3/pc/mod.css",
+        "img": "/path/to/theme_A1-3/pc/img_dir/",
+        "dev_path": "/path/to/theme_A1-3/upload_dir/pc/",
+        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/pc/"
+      },
+      "sp": {
+        "css": "/path/to/theme_A1-3/sp/mod.css",
+        "img": "/path/to/theme_A1-3/sp/img_dir/",
+        "dev_path": "/path/to/theme_A1-3/upload_dir/sp/",
+        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/sp/"
+      }
+    }
+  }
+}
