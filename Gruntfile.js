@@ -68,7 +68,9 @@ module.exports = function(grunt) {
     var args = param1 + ':' + param2 + ':' + param3;
     var wms_data = getAssetsData(g_cnf, param1, param2, param3);
     g_cnf.autoprefixer.wms.src = wms_data.target_assets.css;
-    g_cnf.autoprefixer.wms.dest = wms_data.target_assets.css;
+    if(param3 == 'sp') {
+      g_cnf.autoprefixer.wms.options.browsers = ['ios >= 5', 'android >= 2.2'];
+    }
     grunt.initConfig(g_cnf);
     grunt.task.run('autoprefixer', 'exec:wms_rsync:' + args);
   });
@@ -89,8 +91,13 @@ module.exports = function(grunt) {
   });
 
   grunt.event.on('watch', function(action, filepath) {
+    var tmp = grunt.cli.tasks[0];
+    tmp = tmp.split('wms_watch_upload:')[1];
+    args = tmp.split(':');
     grunt.config('autoprefixer.wms.src', filepath);
-    grunt.config('autoprefixer.wms.dest', filepath);
+    if(args[2] == 'sp' ) {
+      grunt.config('autoprefixer.wms.options.browsers', ['ios >= 5', 'android >= 2.2']);
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');
