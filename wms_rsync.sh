@@ -30,7 +30,7 @@ function wmsRsync() {
 
   echo "host= ${HOST}"
   echo "username= ${USERNAME}"
-  echo "password= ${PASSWORD}"
+  # echo "password= ${PASSWORD}"
   echo "private_key= ${PRIVATE_KEY}"
   echo "path= ${path}"
   echo "remote_path= ${remote_path}"
