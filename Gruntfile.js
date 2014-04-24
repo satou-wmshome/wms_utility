@@ -28,7 +28,20 @@ module.exports = function(grunt) {
       }
     },
     exec: {
-      wms_rsync: {
+      bless: {
+        cmd: function(param1, param2, param3) {
+          if(param3 == null) {
+            console.error('xxx');
+            return false;
+          }
+          var g_cnf = grunt.config();
+          var wms_data = getAssetsData(g_cnf, param1, param2, param3);
+
+          var cmd = 'blessc ' + wms_data.target_assets.css + ' --force';
+          return cmd;
+        }
+      },
+      rsync: {
         cmd: function(param1, param2, param3) {
           if(param3 == null) {
             console.error('xxx');
@@ -39,9 +52,6 @@ module.exports = function(grunt) {
 
           var cmd = './wms_rsync.sh';
           cmd = (g_cnf.os === 'win32') ? 'bash ' + cmd : cmd;
-          if(wms_data.bless) {
-            cmd = 'blessc ' + wms_data.target_assets.css + ' --force && ' + cmd;
-          }
 
           var opt = '';
           opt += ' ' + wms_data.env.host;
@@ -107,15 +117,9 @@ module.exports = function(grunt) {
     }
 
     var g_cnf = grunt.config();
-    var args = param1 + ':' + param2 + ':' + param3;
     var wms_data = getAssetsData(g_cnf, param1, param2, param3);
+    var tasks = getTasks(wms_data.bless, param1, param2, param3);
     g_cnf.autoprefixer.pc.src = g_cnf.autoprefixer.sp.src = wms_data.target_assets.css;
-    // grunt.task.run('autoprefixer:' + param3, 'exec:wms_rsync:' + args);
-    if(wms_data.bless) {
-      var tasks = ['autoprefixer:' + param3, 'bless:' + args, 'rsync:' + args];
-    } else {
-      var tasks = ['autoprefixer:' + param3, 'rsync:' + args];
-    }
     grunt.initConfig(g_cnf);
     grunt.task.run(tasks);
   });
@@ -127,16 +131,10 @@ module.exports = function(grunt) {
     }
 
     var g_cnf = grunt.config();
-    var args = param1 + ':' + param2 + ':' + param3;
     var wms_data = getAssetsData(g_cnf, param1, param2, param3);
-    g_cnf.watch.files = wms_data.target_assets.css;
-    // g_cnf.watch.tasks = ['autoprefixer:' + param3, 'exec:wms_rsync:' + args ];
-    if(wms_data.bless) {
-      var tasks = ['autoprefixer:' + param3, 'bless:' + args, 'rsync:' + args];
-    } else {
-      var tasks = ['autoprefixer:' + param3, 'rsync:' + args];
-    }
+    var tasks = getTasks(wms_data.bless, param1, param2, param3);
     g_cnf.watch.tasks = tasks;
+    g_cnf.watch.files = wms_data.target_assets.css;
     grunt.initConfig(g_cnf);
     grunt.task.run('watch');
   });
@@ -149,7 +147,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   // grunt.loadNpmTasks('grunt-csso');
   grunt.loadNpmTasks('grunt-autoprefixer');
-  // grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-exec');
 };
 
 function getAssetsData(cnf, param1, param2, param3) {
@@ -211,7 +209,7 @@ function getAssetsData(cnf, param1, param2, param3) {
 }
 
 function execCommand(obj, cmd, timeout_ms) {
-  var options_flg = timeout_ms === undefined ? false : true;
+  var options_flg = (timeout_ms === undefined) ? false : true;
 
   var exec = require('child_process').exec;
   var done = obj.async();
@@ -226,5 +224,17 @@ function execCommand(obj, cmd, timeout_ms) {
     }
   }
   var res = options_flg ? exec(cmd, options, callback) : exec(cmd, callback);
+  return res;
+}
+
+function getTasks(bless_flg, param1, param2, param3) {
+  var args = param1 + ':' + param2 + ':' + param3;
+  if(bless_flg) {
+    var res = ['autoprefixer:' + param3, 'exec:bless:' + args, 'exec:rsync:' + args];
+    // var res = ['autoprefixer:' + param3, 'bless:' + args, 'rsync:' + args];
+  } else {
+    var res = ['autoprefixer:' + param3, 'exec:rsync:' + args];
+    // var res = ['autoprefixer:' + param3, 'rsync:' + args];
+  }
   return res;
 }
