@@ -16,9 +16,14 @@ module.exports = function(grunt) {
       }
     },
     autoprefixer: {
-      wms: {
+      pc: {
         options: {
           browsers: ['last 2 version', 'ie >= 8']
+        }
+      },
+      sp: {
+        options: {
+          browsers: ['ios >= 5', 'android >= 2.2']
         }
       }
     },
@@ -26,7 +31,7 @@ module.exports = function(grunt) {
       wms_rsync: {
         cmd: function(param1, param2, param3) {
           if(param3 == null) {
-            console.log('xxx');
+            console.error('xxx');
             return false;
           }
           var g_cnf = grunt.config();
@@ -34,10 +39,10 @@ module.exports = function(grunt) {
 
           var cmd = './wms_rsync.sh';
           cmd = (g_cnf.os === 'win32') ? 'bash ' + cmd : cmd;
-
           if(wms_data.bless) {
             cmd = 'blessc ' + wms_data.target_assets.css + ' --force && ' + cmd;
           }
+
           var opt = '';
           opt += ' ' + wms_data.env.host;
           opt += ' ' + wms_data.env.username;
@@ -46,7 +51,7 @@ module.exports = function(grunt) {
           opt += ' ' + wms_data.target_assets.img;
           opt += ' ' + wms_data.target_assets.remote_path;
           opt += ' ' + wms_data.env.private_key;
-          // console.log(cmd);
+
           return cmd + opt;
         }
       }
@@ -60,7 +65,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('bless', 'wms', function(param1, param2, param3) {
     if(param3 == null) {
-      console.log('xxx');
+      console.error('xxx');
       return false;
     }
 
@@ -73,7 +78,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('rsync', 'wms', function(param1, param2, param3) {
     if(param3 == null) {
-      console.log('xxx');
+      console.error('xxx');
       return false;
     }
 
@@ -97,30 +102,27 @@ module.exports = function(grunt) {
 
   grunt.registerTask('wms_upload', 'wms', function(param1, param2, param3) {
     if(param3 == null) {
-      console.log('xxx');
+      console.error('xxx');
       return false;
     }
 
     var g_cnf = grunt.config();
     var args = param1 + ':' + param2 + ':' + param3;
     var wms_data = getAssetsData(g_cnf, param1, param2, param3);
-    g_cnf.autoprefixer.wms.src = wms_data.target_assets.css;
-    if(param3 == 'sp') {
-      g_cnf.autoprefixer.wms.options.browsers = ['ios >= 5', 'android >= 2.2'];
+    g_cnf.autoprefixer.pc.src = g_cnf.autoprefixer.sp.src = wms_data.target_assets.css;
+    // grunt.task.run('autoprefixer:' + param3, 'exec:wms_rsync:' + args);
+    if(wms_data.bless) {
+      var tasks = ['autoprefixer:' + param3, 'bless:' + args, 'rsync:' + args];
+    } else {
+      var tasks = ['autoprefixer:' + param3, 'rsync:' + args];
     }
     grunt.initConfig(g_cnf);
-    // grunt.task.run('autoprefixer', 'exec:wms_rsync:' + args);
-    if(wms_data.bless) {
-      var tasks = ['autoprefixer', 'bless:' + args, 'rsync:' + args];
-    } else {
-      var tasks = ['autoprefixer', 'rsync:' + args];
-    }
     grunt.task.run(tasks);
   });
 
   grunt.registerTask('wms_watch_upload', 'wms', function(param1, param2, param3) {
     if(param3 == null) {
-      console.log('xxx');
+      console.error('xxx');
       return false;
     }
 
@@ -128,11 +130,11 @@ module.exports = function(grunt) {
     var args = param1 + ':' + param2 + ':' + param3;
     var wms_data = getAssetsData(g_cnf, param1, param2, param3);
     g_cnf.watch.files = wms_data.target_assets.css;
-    // g_cnf.watch.tasks = ['autoprefixer', 'exec:wms_rsync:' + args ];
+    // g_cnf.watch.tasks = ['autoprefixer:' + param3, 'exec:wms_rsync:' + args ];
     if(wms_data.bless) {
-      var tasks = ['autoprefixer', 'bless:' + args, 'rsync:' + args];
+      var tasks = ['autoprefixer:' + param3, 'bless:' + args, 'rsync:' + args];
     } else {
-      var tasks = ['autoprefixer', 'rsync:' + args];
+      var tasks = ['autoprefixer:' + param3, 'rsync:' + args];
     }
     g_cnf.watch.tasks = tasks;
     grunt.initConfig(g_cnf);
@@ -140,19 +142,14 @@ module.exports = function(grunt) {
   });
 
   grunt.event.on('watch', function(action, filepath) {
-    var tmp = grunt.cli.tasks[0];
-    tmp = tmp.split('wms_watch_upload:')[1];
-    args = tmp.split(':');
-    grunt.config('autoprefixer.wms.src', filepath);
-    if(args[2] == 'sp' ) {
-      grunt.config('autoprefixer.wms.options.browsers', ['ios >= 5', 'android >= 2.2']);
-    }
+    grunt.config('autoprefixer.pc.src', filepath);
+    grunt.config('autoprefixer.sp.src', filepath);
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');
   // grunt.loadNpmTasks('grunt-csso');
   grunt.loadNpmTasks('grunt-autoprefixer');
-  grunt.loadNpmTasks('grunt-exec');
+  // grunt.loadNpmTasks('grunt-exec');
 };
 
 function getAssetsData(cnf, param1, param2, param3) {
