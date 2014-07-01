@@ -40,7 +40,7 @@ function wmsRsync() {
 
   expect -c "
     set timeout 10
-    spawn rsync -av --chmod=g+rw --chmod=o+rx ${opt} ${path} ${USERNAME}@${HOST}:${remote_path}
+    spawn rsync -av --no-p ${opt} ${path} ${USERNAME}@${HOST}:${remote_path}
     expect \"Are you sure you want to continue connecting (yes/no)?\" {
       send \"yes\n\"
       expect \"${HOST}'s password:\"
