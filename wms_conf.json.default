@@ -2,55 +2,74 @@
   "dev": {
     "host": "0.0.0.0",
     "username": "username",
-    "private_key": ""
+    "key_file": "",
+    "theme_root_path": "/var/www/html/next-cms-design-theme/theme/"
   },
   "pre_stg": {
     "host": "0.0.0.0",
     "username": "username",
-    "private_key": "/path/to/private_key.pem"
+    "key_file": "/path/to/key_file.pem",
+    "theme_root_path": "/shared/dev_shared/s3-cms-master/theme/"
   },
-  "theme": {
-    "A1_1": {
-      "pc": {
-        "css": "/path/to/theme_A1-1/pc/mod.css",
-        "img": "/path/to/theme_A1-1/pc/img_dir/",
-        "dev_path": "/path/to/theme_A1-1/upload_dir/pc/",
-        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/pc/"
-      },
-      "sp": {
-        "css": "/path/to/theme_A1-1/sp/mod.css",
-        "img": "/path/to/theme_A1-1/sp/img_dir/",
-        "dev_path": "/path/to/theme_A1-1/upload_dir/sp/",
-        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/sp/"
-      }
+  "svn_dir": {
+    "A1-1": "../svn/next-cms-themeA1-1/",
+    "A1-2": "../svn/next-cms-themeA1-2/",
+    "A1-3": "../svn/next-cms-themeA1-3/"
+  },
+  "deploy_dir": {
+    "sample1": "remote_dir1",
+    "sample2": "remote_dir2",
+    "sample3": "remote_dir3"
+  },
+  "compile": {
+    "sibling": {
+      "all": ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"],
+      "a": ["a1", "a2", "a3"],
+      "b": ["b1", "b2", "b3"],
+      "c": ["c1", "c2", "c3"],
+      "1": ["a1", "b1", "c1"],
+      "2": ["a2", "b2", "c2"],
+      "3": ["a3", "b3", "c3"],
+      "a1": ["a1"],
+      "a2": ["a2"],
+      "a3": ["a3"],
+      "b1": ["b1"],
+      "b2": ["b2"],
+      "b3": ["b3"],
+      "c1": ["c1"],
+      "c2": ["c2"],
+      "c3": ["c3"],
+      "sample1": ["a1", "b2", "c3"]
     },
-    "A1_2": {
-      "pc": {
-        "css": "/path/to/theme_A1-2/pc/mod.css",
-        "img": "/path/to/theme_A1-2/pc/img_dir/",
-        "dev_path": "/path/to/theme_A1-2/upload_dir/pc/",
-        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/pc/"
-      },
-      "sp": {
-        "css": "/path/to/theme_A1-2/sp/mod.css",
-        "img": "/path/to/theme_A1-2/sp/img_dir/",
-        "dev_path": "/path/to/theme_A1-2/upload_dir/sp/",
-        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/sp/"
-      }
+    "layout": {
+      "all": ["L25", "R25", "L30", "R30", "N00", "Num"],
+      "25": ["L25", "R25"],
+      "30": ["L30", "R30"],
+      "00": ["N00"],
+      "L": ["L25", "L30"],
+      "R": ["R25", "R30"],
+      "N": ["N00"],
+      "Num": ["Num"],
+      "L25": ["L25"],
+      "R25": ["R25"],
+      "L30": ["L30"],
+      "R30": ["R30"],
+      "N00": ["N00"],
+      "sample1": ["L25", "Num"]
+    }
+  },
+  "shortcut": {
+    "sample1": {
+        "info": "A1-1a1-L25 コンパイル",
+        "cmd": "wms_compile:mid:A1-1:a1:L25"
     },
-    "A1_3": {
-      "pc": {
-        "css": "/path/to/theme_A1-3/pc/mod.css",
-        "img": "/path/to/theme_A1-3/pc/img_dir/",
-        "dev_path": "/path/to/theme_A1-3/upload_dir/pc/",
-        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/pc/"
-      },
-      "sp": {
-        "css": "/path/to/theme_A1-3/sp/mod.css",
-        "img": "/path/to/theme_A1-3/sp/img_dir/",
-        "dev_path": "/path/to/theme_A1-3/upload_dir/sp/",
-        "pre_stg_path": "/shared/dev_shared/s3-cms-master/theme/path_to_upload_dir/sp/"
-      }
+    "sample2": {
+        "info": "A1-1-L25 全兄弟コンパイル",
+        "cmd": "wms_compile:mid:A1-1:all:L25"
+    },
+    "sample3": {
+        "info": "A1-1a1-L25 devアップロード",
+        "cmd": "wms_upload:mid:A1-1:a1:L25:dev:sample1"
     }
   }
 }
