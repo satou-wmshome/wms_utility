@@ -25,26 +25,31 @@ module.exports = function(grunt) {
             return false;
           }
 
+          var path = require('path');
           var g_cnf = grunt.config();
           var branch = (pBranch == null || pBranch == '' || pBranch == 'trunk') ? 'trunk' : 'branches/' + pBranch;
           var theme = pSVNDir;
-          var theme_path = g_cnf.wms_config.svn_dir[theme];
+          var theme_path = path.normalize(g_cnf.wms_config.svn_dir[theme]);
           var siblings = (pSibling == null || pSibling == '') ? ['a1'] : g_cnf.wms_config.compile.sibling[pSibling];
           var layouts = (pLayout == null || pLayout == '') ? ['L25'] : g_cnf.wms_config.compile.layout[pLayout];
 
           var args_arr = [];
           for(var i=0; i<layouts.length; i++) {
             var dir_name1 = theme + '-' + layouts[i] + '/';
-            var media = (layouts[i] !== 'Num') ? 'pc/' : 'sp/';
+            var media = (layouts[i] !== 'Num') ? 'pc' : 'sp';
             for(var n=0; n<siblings.length; n++) {
               var dir_name2 = theme + siblings[n] + '-' + layouts[i] + '/';
-              args_arr.push(theme_path + branch + '/v10/theme_scss/' + dir_name1 + dir_name2 + media);
+              var target_path = path.join(theme_path, branch, '/v10/theme_scss/', dir_name1, dir_name2, media, '/');
+              if(g_cnf.os === 'win32') {
+                target_path = target_path.replace(/\\/g, '/');
+              }
+              args_arr.push(target_path);
             }
           }
           var args = args_arr.join(' ');
 
           var cmd = './wms_compile.sh ';
-          cmd = (g_cnf.os === 'win32') ? 'bash ' + cmd : cmd;
+          cmd = (g_cnf.os == 'win32') ? 'bash ' + cmd : cmd;
 
           return cmd + args;
         }
@@ -74,7 +79,7 @@ module.exports = function(grunt) {
           var wms_data = getAssetsData(g_cnf, pBranch, pSVNDir, pSibling, pLayout, pEnv, pDeployDir);
 
           var cmd = './wms_rsync.sh';
-          cmd = (g_cnf.os === 'win32') ? 'bash ' + cmd : cmd;
+          cmd = (g_cnf.os == 'win32') ? 'bash ' + cmd : cmd;
 
           var opt = [
                       '',
@@ -87,6 +92,7 @@ module.exports = function(grunt) {
                       wms_data.key_file
                     ].join(' ');
 
+          console.log(cmd + opt);
           return cmd + opt;
         }
       },
@@ -174,9 +180,13 @@ module.exports = function(grunt) {
       var obj = g_cnf.wms_config.shortcut;
       console.log('\n<<ShortCut List>> ==================================================');
       Object.keys(obj).forEach(function(key){
-        var str = "grunt wms_shortcut:" + key;
-        str += "   ..." + obj[key]['info'];
-        str += " (" + obj[key]['cmd'] + ')';
+        if(obj[key]['cmd'] == "") {
+          var str = '<' + key + '>' + obj[key]['info'];
+        } else {
+          var str = "grunt wms_shortcut:" + key;
+          str += "   ..." + obj[key]['info'];
+          str += " (" + obj[key]['cmd'] + ')';
+        }
         console.log(str);
       });
       console.log('====================================================================');
@@ -185,9 +195,15 @@ module.exports = function(grunt) {
 
     var cmd = g_cnf.wms_config.shortcut[pKey]['cmd'].replace(/:/g, '|');
     console.log(g_cnf.wms_config.shortcut[pKey]['info']);
+
+    if(cmd == "") {
+      console.log('(実行されるタスクはありません)');
+      return true;
+    }
     grunt.task.run('exec:shortcut:' + cmd);
   });
 
+  //
   grunt.event.on('watch', function(action, filepath) {
     grunt.config('autoprefixer.pc.src', filepath);
     grunt.config('autoprefixer.sp.src', filepath);
@@ -229,6 +245,7 @@ function Information(task_name) {
 }
 
 function getAssetsData(cnf, pBranch, pSVNDir, pSibling, pLayout, pEnv, pDeployDir) {
+  var path = require('path');
   var res = {};
 
   var theme = pSVNDir;
@@ -239,12 +256,28 @@ function getAssetsData(cnf, pBranch, pSVNDir, pSibling, pLayout, pEnv, pDeployDi
   res['host'] = cnf.wms_config[pEnv]['host'];
   res['username'] = cnf.wms_config[pEnv]['username'];
   res['password'] = cnf.wms_pw[pEnv];
-  res['key_file'] = cnf.wms_config[pEnv]['key_file'];
+  res['key_file'] = (cnf.wms_config[pEnv]['key_file'] != '') ? path.normalize(cnf.wms_config[pEnv]['key_file']) : '';
   res['media'] = (pLayout !== 'Num') ? 'pc' : 'sp';
-  res['css_dir'] = cnf.wms_config.svn_dir[theme] + branch + '/v10/theme_scss/' + layout + sibling + res['media'] + '/';
-  res['img_dir'] = cnf.wms_config.svn_dir[theme] + branch + '/v10/theme_scss/' + res['media'] + '/img/';
-  res['deploy_dir'] = cnf.wms_config[pEnv]['theme_root_path'] + cnf.wms_config.deploy_dir[pDeployDir] + '/' + res['media'] + '/';
 
+  var base_path = path.join(cnf.wms_config.svn_dir[theme], branch, '/v10/theme_scss/');
+  var css_dir = path.join(base_path, layout, sibling, res['media'], '/');
+  css_dir = path.normalize(css_dir);
+  var img_dir = path.join(base_path, res['media'], '/img/');
+  img_dir = path.normalize(img_dir);
+  var deploy_dir = path.join(cnf.wms_config[pEnv]['theme_root_path'], cnf.wms_config.deploy_dir[pDeployDir], '/', res['media'], '/');
+  deploy_dir = path.normalize(deploy_dir);
+
+  if(cnf.os === 'win32') {
+    css_dir = css_dir.replace(/\\/g, '/');
+    img_dir = img_dir.replace(/\\/g, '/');
+    deploy_dir = deploy_dir.replace(/\\/g, '/');
+  }
+
+  res['css_dir'] = css_dir;
+  res['img_dir'] = img_dir;
+  res['deploy_dir'] = deploy_dir;
+
+  // console.log(res);
   return res;
 }
 

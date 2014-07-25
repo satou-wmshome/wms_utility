@@ -59,6 +59,10 @@
     }
   },
   "shortcut": {
+    "task_shortcut_command": {
+        "info": "\nタスク実行のショートカットを登録できます。\n\"cmd\"の値に実行したいコマンドを記載してください。\ngrunt wms_shortcut --list で登録されているショートカット一覧が確認できます。\n\"cmd\"の値を空欄にするとコメントとして扱われます。\n",
+        "cmd": ""
+    },
     "sample1": {
         "info": "A1-1a1-L25 コンパイル",
         "cmd": "wms_compile:mid:A1-1:a1:L25"

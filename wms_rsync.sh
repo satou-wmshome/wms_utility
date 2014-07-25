@@ -8,7 +8,7 @@ IMG_DIR_PATH=$5
 JSON_DIR_PATH="${CSS_DIR_PATH}../"
 TXT_DIR_PATH="${JSON_DIR_PATH}../"
 DIST_PATH=$6
-PRIVATE_KEY=$7
+KEY_FILE=$7
 
 function wmsRsync() {
   arg=$1
@@ -36,14 +36,14 @@ function wmsRsync() {
       ;;
     * ) break ;;
   esac
-  if [ -n "${PRIVATE_KEY}" ]; then
-    opt="${opt} -e \"ssh -i ${PRIVATE_KEY}\""
+  if [ -n "${KEY_FILE}" ]; then
+    opt="${opt} -e \"ssh -i ${KEY_FILE}\""
   fi
 
   echo "host= ${HOST}"
   echo "username= ${USERNAME}"
   # echo "password= ${PASSWORD}"
-  echo "private_key= ${PRIVATE_KEY}"
+  echo "private_key= ${KEY_FILE}"
   echo "local_path= ${local_path}"
   echo "remote_path= ${remote_path}"
   echo "opt= ${opt}"
